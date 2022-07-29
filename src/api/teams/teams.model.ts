@@ -7,10 +7,10 @@ export interface ITeam {
     isActive: boolean
 };
 
-export interface IGetTeamReq extends Request{}
-export interface IAddTeamReq extends Request{}
-export interface IUpdateTeamReq extends Request{}
-export interface IDeleteTeamReq extends Request{}
+export interface IGetTeamReq extends Request<{ id: ITeam['id'] }> { }
+export interface IAddTeamReq extends Request { }
+export interface IUpdateTeamReq extends Request<{ id: ITeam['id'] }, any, ITeam> { }
+export interface IDeleteTeamReq extends Request<{ id: ITeam['id'] }> { }
 
 export class Team implements ITeam{
     id: number;
