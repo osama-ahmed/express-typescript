@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: teams-api:latest
+    volumes:
+      - .:/src
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - teams-api-mysql-data:/var/lib/mysql
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+
+volumes:
+  teams-api-mysql-data:

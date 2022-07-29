@@ -18,6 +18,8 @@ function handleError(
 ) {
   let customError = err;
 
+  console.log(customError);
+
   if (!(err instanceof CustomError)) {
     customError = new CustomError(
       'Oh no, this is embarrasing. We are having troubles my friend'

@@ -1,17 +1,12 @@
 import { Request, RequestHandler, Response } from 'express';
-import { CustomError } from '../models/custom-error.model';
-import { IAddTeamReq, ITeam, Team } from './teams.model';
-
-const TEAMS = [
-  new Team(1, 'Real Madrid', 'La Liga', true),
-  new Team(2, 'Manchester United', 'Premier League', true),
-  new Team(3, 'Barcelona', 'La Liga', true),
-  new Team(4, 'Liverpool', 'Premier League', true),
-  new Team(5, 'Arsenal', 'Premier League', true),
-  new Team(6, 'Inter', 'Serie A', true),
-  new Team(7, 'Milan', 'Serie A', true),
-  new Team(8, 'Juventus', 'Serie A', true)
-];
+import {
+  ITeam,
+  IGetTeamReq,
+  IAddTeamReq,
+  IUpdateTeamReq,
+  IDeleteTeamReq
+} from './teams.model';
+import * as TeamService from './teams.service';
 
 /**
  * Get active team records
@@ -19,9 +14,19 @@ const TEAMS = [
  * @param req Express Request
  * @param res Express Response
  */
- export const getTeams: RequestHandler = (req: Request, res: Response) => {
-  const activeTeams = TEAMS.filter((team) => team.isActive);
-  res.send(activeTeams);
+export const getTeams: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const teams = await TeamService.getTeams();
+
+    res.status(200).json({
+      teams
+    });
+  } catch (error) {
+    console.error('[teams.controller][getTeams][Error] ', typeof error === 'object' ? JSON.stringify(error) : error);
+    res.status(500).json({
+      message: 'There was an error when fetching teams'
+    });
+  }
 };
 
 /**
@@ -31,14 +36,19 @@ const TEAMS = [
  * @param res Express Response
  */
 // @ts-ignore
-export const getTeamById: RequestHandler = (req: IGetTeamReq, res: Response) => {
-  const team = TEAMS.find((team) => team.id === +req.params.id && team.isActive);
+export const getTeamById: RequestHandler = async (req: IGetTeamReq, res: Response) => {
+  try {
+    const team = await TeamService.getTeamById(req.params.id);
 
-  if(!team){
-    throw new CustomError("No team found with the provided Id", 404);
+    res.status(200).json({
+      team
+    });
+  } catch (error) {
+    console.error('[teams.controller][getTeamById][Error] ', typeof error === 'object' ? JSON.stringify(error) : error);
+    res.status(500).json({
+      message: 'There was an error when fetching team'
+    });
   }
-
-  res.send(team);
 };
 
 /**
@@ -47,19 +57,19 @@ export const getTeamById: RequestHandler = (req: IGetTeamReq, res: Response) => 
  * @param req Express Request
  * @param res Express Response
  */
-export const addTeam: RequestHandler = (req: IAddTeamReq, res: Response) => {
-  const lastTeamIndex = TEAMS.length - 1;
-  const lastId = TEAMS[lastTeamIndex].id;
-  const id = lastId + 1;
-  const newTeam: ITeam = {
-    ...req.body,
-    id,
-    isActive: true
-  };
+export const addTeam: RequestHandler = async (req: IAddTeamReq, res: Response) => {
+  try {
+    const result = await TeamService.insertTeam(req.body);
 
-  TEAMS.push(newTeam);
-
-  res.send(newTeam);
+    res.status(200).json({
+      result
+    });
+  } catch (error) {
+    console.error('[teams.controller][addTeam][Error] ', typeof error === 'object' ? JSON.stringify(error) : error);
+    res.status(500).json({
+      message: 'There was an error when adding new team'
+    });
+  }
 };
 
 /**
@@ -69,17 +79,19 @@ export const addTeam: RequestHandler = (req: IAddTeamReq, res: Response) => {
  * @param res Express Response
  */
 // @ts-ignore
-export const updateTeamById: RequestHandler = (req: IUpdateTeamReq, res: Response) => {
-  const currentTeam = TEAMS.find((team) => team.id === +req.params.id && team.isActive);
+export const updateTeamById: RequestHandler = async (req: IUpdateTeamReq, res: Response) => {
+  try {
+    const result = await TeamService.updateTeam({ ...req.body, id: req.params.id });
 
-  if(!currentTeam){
-    throw new CustomError("No team found with the provided Id", 404);
+    res.status(200).json({
+      result
+    });
+  } catch (error) {
+    console.error('[teams.controller][updateTeamById][Error] ', typeof error === 'object' ? JSON.stringify(error) : error);
+    res.status(500).json({
+      message: 'There was an error when updating team'
+    });
   }
-
-  currentTeam.name = req.body.name || currentTeam.name;
-  currentTeam.league = req.body.league || currentTeam.league;
-
-  res.send({ success: true });
 };
 
 /**
@@ -89,9 +101,17 @@ export const updateTeamById: RequestHandler = (req: IUpdateTeamReq, res: Respons
  * @param res Express Response
  */
 // @ts-ignore
-export const deleteTeamById: RequestHandler = (req: IDeleteTeamReq, res: Response) => {
-  const teamIndex = TEAMS.findIndex((team) => team.id === +req.params.id && team.isActive);
-  TEAMS.splice(teamIndex, 1);
+export const deleteTeamById: RequestHandler = async (req: IDeleteTeamReq, res: Response) => {
+  try {
+    const result = await TeamService.deleteTeam(req.params.id);
 
-  res.send({ success: true });
+    res.status(200).json({
+      result
+    });
+  } catch (error) {
+    console.error('[teams.controller][deleteTeamById][Error] ', typeof error === 'object' ? JSON.stringify(error) : error);
+    res.status(500).json({
+      message: 'There was an error when deleting team'
+    });
+  }
 };
