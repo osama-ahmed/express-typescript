@@ -7,11 +7,11 @@ Implemenation of [learn-how-to-use-typescript-with-node-js-and-express-js](https
 - GET /api/token
 - GET /api/teams/
 - POST /api/teams
-    Body example: 
-    {
-        "name": "test",
-        "league": "test league"
-    }
+- Body example: 
+  {
+    "name": "test",
+    "league": "test league"
+  }
 - GET /api/teams/{id}
 - PATCH /api/teams/{id}
 - DELETE /api/teams/{id}
